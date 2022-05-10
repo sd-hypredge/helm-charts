@@ -103,7 +103,33 @@ data:
 
       pprof:
         port: 7936
-        
+
+      tls:
+      {{- range $type:= (list "internode" "frontend")}}
+      {{- $item := get $.Values.server.config.tls $type }}        
+      {{- if $item.enabled -}}      
+        {{ $type }}: 
+          server:
+            certFile: /etc/temporal/tls/{{- $type -}}/serverCertificate
+            keyFile: /etc/temporal/tls/{{- $type -}}/serverKey            
+            {{- if $item.server.requireClientAuth }}
+            requireClientAuth : true
+            clientCaFiles:
+              {{- range $i, $file:= $item.server.clientCaFiles}}
+              - /etc/temporal/tls/{{- $type -}}/{{- $item.clientCaPrefix -}}_{{- $i }}
+              {{- end}}
+            {{- end }}  
+          client: 
+            {{- if $item.client.serverName }}
+            serverName:  {{ $item.client.serverName }}
+            {{- end }}
+            rootCaFiles:
+              {{- range $i, $file:= $item.client.rootCaFiles}}
+              - /etc/temporal/tls/{{- $type -}}/{{- $item.rootCaPrefix -}}_{{- $i }}
+              {{- end}}
+      {{- end}}  
+      {{- end }} 
+
       metrics:
         tags:
           type: {{ $service }}

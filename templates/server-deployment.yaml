@@ -131,11 +131,35 @@ spec:
                port: rpc
           {{- end }}
           volumeMounts:
+            {{- range $type:= (list "internode" "frontend")}}      
+            {{- $item := get $.Values.server.config.tls $type }}
+            {{- if $item.enabled }}      
+            - name:  {{ $type }}-tls-config
+              mountPath: /etc/temporal/tls/{{- $type -}}/serverCertificate
+              subPath: serverCertificate
+            - name: {{ $type }}-tls-config
+              mountPath: /etc/temporal/tls/{{- $type -}}/serverKey
+              subPath: serverKey
+            {{- if $item.server.requireClientAuth }}              
+            {{- range $i, $file:= $item.server.clientCaFiles}}
+            - name: {{ $type }}-tls-config
+              mountPath: /etc/temporal/tls/{{- $type -}}/{{ $item.clientCaPrefix -}}_{{- $i }} 
+              subPath: {{ $item.clientCaPrefix -}}_{{- $i }} 
+            {{- end }}            
+            {{- range $i, $file:= $item.client.rootCaFiles}}
+            - name: {{ $type }}-tls-config
+              mountPath: /etc/temporal/tls/{{- $type -}}/{{ $item.rootCaPrefix -}}_{{- $i }} 
+              subPath: {{ $item.rootCaPrefix -}}_{{- $i }} 
+            {{- end }}            
+            {{- end }}
+            {{- end }}
+            {{- end }}
             - name: config
               mountPath: /etc/temporal/config/config_template.yaml
               subPath: config_template.yaml
             - name: dynamic-config
               mountPath: /etc/temporal/dynamic_config
+            
             {{- if $.Values.server.additionalVolumeMounts }}
             {{- toYaml $.Values.server.additionalVolumeMounts | nindent 12}}  
             {{- end }}
@@ -150,6 +174,29 @@ spec:
       {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+        {{- range $type:= (list "internode" "frontend")}}      
+        {{- $item := get $.Values.server.config.tls $type }}
+        {{- if $item.enabled }}      
+        - name: {{- $type -}}-tls-config
+          configMap:
+            name: "{{ include "temporal.fullname" $ }}-tls-{{- $type -}}-config"
+            items: 
+            - key: serverCertificate
+              path: serverCertificate
+            - key: serverKey
+              path: serverKey
+          {{- if $item.server.requireClientAuth }}              
+          {{- range $i, $file:= $item.server.clientCaFiles}}
+            - key: {{ $item.clientCaPrefix -}}_{{- $i }} 
+              path: {{ $item.clientCaPrefix -}}_{{- $i }} 
+          {{- end }}            
+          {{- range $i, $file:= $item.client.rootCaFiles}}
+            - key: {{ $item.rootCaPrefix -}}_{{- $i }} 
+              path: {{ $item.rootCaPrefix -}}_{{- $i }} 
+          {{- end }}            
+          {{- end }}
+        {{- end }}        
+        {{- end }}
         - name: config
           configMap:
             name: "{{ include "temporal.componentname" (list $ $service) }}-config"

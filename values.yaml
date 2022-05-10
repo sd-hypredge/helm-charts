@@ -81,7 +81,39 @@ server:
   additionalVolumes: []
   additionalVolumeMounts: []
 
-  config:
+  config: 
+    tls:
+      internode:
+        enabled: true
+        clientCaPrefix: cca
+        rootCaPrefix : rca
+        server:
+          certFile: certs/internode/serverCert.pem
+          keyFile: certs/internode/serverKey.pem
+          requireClientAuth: true
+          clientCaFiles:
+            - certs/internode/serverCa.pem
+        client:
+          serverName: dnsSanInInternodeCertificate
+          rootCaFiles:
+            - certs/internode/serverCa.pem
+      frontend:
+        enabled: true
+        clientCaPrefix: cca
+        rootCaPrefix : rca
+        server:
+          certFile: certs/frontend/serverCert.pem
+          keyFile: certs/frontend/serverKey.pem
+          requireClientAuth: true
+          clientCaFiles:
+            - certs/internode/serverCa.pem
+            - certs/sdkClientPool1/ca
+            - certs/sdkClientPool2/ca
+        client:
+          serverName: dnsSanInFrontendCertificate
+          rootCaFiles:
+            - certs/frontend/serverCa.pem
+                  
     logLevel: "debug,info"
 
     # IMPORTANT: This value cannot be changed, once it's set.

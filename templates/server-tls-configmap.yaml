@@ -1,0 +1,37 @@
+## The config map creates 2 configmaps, one to be mounted for internode, and another
+## one to be mounted for frontend
+{{- range $type:= (list "internode" "frontend")}}
+{{- $item := get $.Values.server.config.tls $type }}
+{{- if $item.enabled }}      
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ include "temporal.fullname" $ }}-tls-{{- $type -}}-config"
+  labels:
+    app.kubernetes.io/name: {{ include "temporal.name" $ }}
+    helm.sh/chart: {{ include "temporal.chart" $ }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/part-of: {{ $.Chart.Name }}
+data:
+  {{- if $item.client.serverName }}
+  serverNameForClient:  {{ $item.client.serverName }}
+  {{- end }}
+  serverCertificate : |-
+    {{ $.Files.Get $item.server.certFile | quote }}
+  serverKey : |-
+    {{ $.Files.Get $item.server.keyFile | quote }}
+  {{- if $item.server.requireClientAuth }}
+  {{- range $i, $file:= $item.server.clientCaFiles}}
+  {{ $item.clientCaPrefix -}}_{{- $i }} : |-
+    {{ $.Files.Get $file | quote }}
+  {{- end}}
+  {{- range $i, $file:= $item.client.rootCaFiles}}
+  {{ $item.rootCaPrefix -}}_{{- $i }} : |-
+    {{ $.Files.Get $file | quote }}
+  {{- end}}
+  {{- end }} 
+---  
+{{ end}}
+{{- end }} 
