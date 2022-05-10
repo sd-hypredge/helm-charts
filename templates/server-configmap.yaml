@@ -107,7 +107,7 @@ data:
       tls:
       {{- range $type:= (list "internode" "frontend")}}
       {{- $item := get $.Values.server.config.tls $type }}        
-      {{- if $item.enabled -}}      
+      {{- if $item.enabled }}      
         {{ $type }}: 
           server:
             certFile: /etc/temporal/tls/{{- $type -}}/serverCertificate

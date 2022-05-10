@@ -88,31 +88,29 @@ server:
         clientCaPrefix: cca
         rootCaPrefix : rca
         server:
-          certFile: certs/internode/serverCert.pem
-          keyFile: certs/internode/serverKey.pem
+          certFile: mycerts/server.pem
+          keyFile: mycerts/server.key
           requireClientAuth: true
           clientCaFiles:
-            - certs/internode/serverCa.pem
+            - mycerts/ca.cert
         client:
-          serverName: dnsSanInInternodeCertificate
+          serverName: localhost
           rootCaFiles:
-            - certs/internode/serverCa.pem
+            - mycerts/ca.cert
       frontend:
         enabled: true
         clientCaPrefix: cca
         rootCaPrefix : rca
         server:
-          certFile: certs/frontend/serverCert.pem
-          keyFile: certs/frontend/serverKey.pem
+          certFile: mycerts/server.pem
+          keyFile: mycerts/server.key
           requireClientAuth: true
           clientCaFiles:
-            - certs/internode/serverCa.pem
-            - certs/sdkClientPool1/ca
-            - certs/sdkClientPool2/ca
+            - mycerts/ca.cert
         client:
-          serverName: dnsSanInFrontendCertificate
+          serverName: localhost
           rootCaFiles:
-            - certs/frontend/serverCa.pem
+            - mycerts/ca.cert
                   
     logLevel: "debug,info"
 
@@ -195,6 +193,25 @@ server:
       annotations: {} # Evaluated as template
       type: ClusterIP
       port: 7233
+    metrics:
+      annotations:
+        enabled: true
+      serviceMonitor: {}
+      # enabled: false
+      prometheus: {}
+      # timerType: histogram
+    podAnnotations: {}
+    podLabels: {}
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  test:
+    # replicaCount: 1
+    service:
+      type: ClusterIP
+      port: 80
     metrics:
       annotations:
         enabled: true

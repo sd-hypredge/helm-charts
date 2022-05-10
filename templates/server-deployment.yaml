@@ -1,4 +1,4 @@
-{{- if $.Values.server.enabled }}
+{{ if $.Values.server.enabled }}
 {{- range $service := (list "frontend" "history" "matching" "worker") }}
 {{- $serviceValues := index $.Values.server $service -}}
 apiVersion: apps/v1
@@ -177,7 +177,7 @@ spec:
         {{- range $type:= (list "internode" "frontend")}}      
         {{- $item := get $.Values.server.config.tls $type }}
         {{- if $item.enabled }}      
-        - name: {{- $type -}}-tls-config
+        - name:  {{ $type }}-tls-config
           configMap:
             name: "{{ include "temporal.fullname" $ }}-tls-{{- $type -}}-config"
             items: 

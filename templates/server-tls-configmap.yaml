@@ -18,18 +18,20 @@ data:
   {{- if $item.client.serverName }}
   serverNameForClient:  {{ $item.client.serverName }}
   {{- end }}
+
+binaryData:
   serverCertificate : |-
-    {{ $.Files.Get $item.server.certFile | quote }}
+    {{ $.Files.Get $item.server.certFile | b64enc }}
   serverKey : |-
-    {{ $.Files.Get $item.server.keyFile | quote }}
+    {{ $.Files.Get $item.server.keyFile | b64enc }}
   {{- if $item.server.requireClientAuth }}
   {{- range $i, $file:= $item.server.clientCaFiles}}
   {{ $item.clientCaPrefix -}}_{{- $i }} : |-
-    {{ $.Files.Get $file | quote }}
+    {{ $.Files.Get $file | b64enc }}
   {{- end}}
   {{- range $i, $file:= $item.client.rootCaFiles}}
   {{ $item.rootCaPrefix -}}_{{- $i }} : |-
-    {{ $.Files.Get $file | quote }}
+    {{ $.Files.Get $file | b64enc }}
   {{- end}}
   {{- end }} 
 ---  
