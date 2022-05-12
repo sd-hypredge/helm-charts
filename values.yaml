@@ -94,7 +94,7 @@ server:
           clientCaFiles:
             - mycerts/ca.cert
         client:
-          serverName: localhost
+          serverName: temporal
           rootCaFiles:
             - mycerts/ca.cert
       frontend:
@@ -108,7 +108,7 @@ server:
           clientCaFiles:
             - mycerts/ca.cert
         client:
-          serverName: localhost
+          serverName: temporal
           rootCaFiles:
             - mycerts/ca.cert
                   
